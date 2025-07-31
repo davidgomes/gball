@@ -1,0 +1,42 @@
+#!/bin/bash
+# This hook runs before a commit is created
+
+# Get the current branch name
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+# Check if we're on the main branch
+if [ "$current_branch" = "main" ]; then
+    echo "🏗️  Building frontend before commit..."
+    
+    # Navigate to client directory
+    cd client
+    
+    # Install dependencies if needed
+    if [ ! -d "node_modules" ]; then
+        echo "📦 Installing dependencies..."
+        npm install
+    fi
+    
+    # Build the frontend
+    echo "🔨 Building frontend assets..."
+    npm run build
+    
+    # Check if build was successful
+    if [ $? -eq 0 ]; then
+        echo "✅ Frontend build successful!"
+        
+        # Go back to root directory
+        cd ..
+        
+        # Add the built files to the commit
+        git add client/dist/
+        
+        echo "📁 Built assets added to commit"
+    else
+        echo "❌ Frontend build failed! Aborting commit."
+        cd ..
+        exit 1
+    fi
+fi
+
+exit 0

@@ -98,6 +98,72 @@ While gball ships with the classic Haxball-style field and ball, you can customi
 - **Ball:** Adjust physics or appearance in config files/stadium editor.
 - **Mods:** Add new features using plugins (planned).
 
+## Deployment
+
+### Server Deployment (Koyeb)
+
+The server is configured for automatic deployment to Koyeb on every push to the main branch.
+
+#### Initial Setup:
+
+1. Create a Koyeb account at https://www.koyeb.com/
+2. Get your API token from the Koyeb dashboard
+3. In your GitHub repository settings, add a secret named `KOYEB_API_TOKEN` with your Koyeb API token
+4. Create an app on Koyeb named `gball-server`
+5. Push to the main branch to trigger automatic deployment
+
+The server uses a multi-stage Dockerfile optimized for Bun runtime and will be automatically built and deployed via GitHub Actions.
+
+### Frontend Deployment (GitHub Pages)
+
+The frontend is built locally before commits and deployed to GitHub Pages.
+
+#### Initial Setup:
+
+1. Enable automatic builds before commits:
+   ```bash
+   ./setup-hooks.sh
+   ```
+   This configures a pre-commit hook that automatically builds the frontend when committing on the main branch.
+
+2. Go to your repository Settings → Pages
+3. Under "Build and deployment", set Source to "Deploy from a branch"
+4. Select branch: `main` and folder: `/client/dist`
+5. Click Save
+
+The frontend will be available at: `https://<username>.github.io/<repository-name>/`
+
+**Important:** If your repository name is not your username.github.io, you need to update the base path in `client/vite.config.ts`:
+```javascript
+export default defineConfig({
+  base: '/<repository-name>/',
+  // ... rest of config
+});
+```
+
+#### How it Works:
+
+- When you commit on the main branch, the pre-commit hook automatically:
+  - Builds the frontend to `client/dist/`
+  - Adds the built files to your commit
+- When you push to GitHub, the built files are included
+- GitHub Pages serves the files from `client/dist/`
+
+#### Manual Build:
+
+If you need to build manually without committing:
+```bash
+cd client
+npm install
+npm run build
+```
+
+#### Disable Automatic Builds:
+
+```bash
+git config --unset core.hooksPath
+```
+
 ## Contributing
 
 We welcome contributions! Submit pull requests, bug reports, or ideas via issues.

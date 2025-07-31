@@ -1,0 +1,29 @@
+name: Deploy to Koyeb
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Deploy to Koyeb
+      uses: koyeb/action-git-deploy@v1
+      with:
+        # You'll need to set these secrets in your GitHub repository
+        api_token: ${{ secrets.KOYEB_API_TOKEN }}
+        app_name: gball-server
+        service_name: gball-server
+        # Optional: specify the Dockerfile path
+        build_args: |
+          DOCKERFILE_PATH=server/Dockerfile
+          CONTEXT_PATH=server
+        # Optional: set environment variables for your app
+        env_vars: |
+          NODE_ENV=production
+          PORT=8080
