@@ -1,0 +1,19 @@
+{
+  "name": "gball",
+  "version": "1.0.0",
+  "description": "A fast-paced, physics-based online soccer game inspired by Haxball",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && bun run dev",
+    "dev:client": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "start": "cd server && bun run start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "workspaces": [
+    "server",
+    "client"
+  ]
+}
