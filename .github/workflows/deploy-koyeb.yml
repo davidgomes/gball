@@ -12,33 +12,21 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Install Koyeb CLI
-      run: |
-        curl -fsSL https://get.koyeb.com | sh
-        echo "$HOME/.koyeb/bin" >> $GITHUB_PATH
+    - name: Install and configure the Koyeb CLI
+      uses: koyeb-community/koyeb-actions@v2
+      with:
+        api_token: "${{ secrets.KOYEB_API_TOKEN }}"
     
-    - name: Deploy to Koyeb
-      run: |
-        export PATH="$HOME/.koyeb/bin:$PATH"
-        
-        # Create or update the app
-        if ! koyeb app get gball-server > /dev/null 2>&1; then
-          echo "Creating app gball-server..."
-          koyeb app create gball-server
-        fi
-        
-        # Deploy the service
-        koyeb service deploy gball-server/gball-server \
-          --git https://github.com/${{ github.repository }}.git \
-          --git-branch main \
-          --git-builder dockerfile \
-          --git-dockerfile server/Dockerfile \
-          --git-build-args NODE_ENV=production \
-          --env NODE_ENV=production \
-          --env PORT=8080 \
-          --port 8080:http \
-          --instance-type nano \
-          --regions fra \
-          --wait
-      env:
-        KOYEB_API_TOKEN: ${{ secrets.KOYEB_API_TOKEN }}
+    - name: Build and deploy the application to Koyeb
+      uses: koyeb/action-git-deploy@v1
+      with:
+        app-name: gball-server
+        service-name: gball-server
+        git-builder: docker
+        git-docker-dockerfile: server/Dockerfile
+        git-docker-build-args: NODE_ENV=production
+        service-env: NODE_ENV=production,PORT=8080
+        service-ports: "8080:http"
+        service-routes: "/:8080"
+        service-instance-type: nano
+        service-regions: fra
