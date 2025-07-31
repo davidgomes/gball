@@ -26,7 +26,8 @@ WORKDIR /app
 
 # Copy server package.json and dependencies
 COPY server/package.json ./
-COPY --from=deps /app/server/node_modules ./node_modules
+# Copy the hoisted node_modules from the root
+COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/server/dist ./dist
 
 # Expose the port your app runs on
