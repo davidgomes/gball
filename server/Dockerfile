@@ -4,26 +4,32 @@ WORKDIR /app
 
 # Install dependencies
 FROM base as deps
-COPY package.json bun.lockb* ./
+# Copy root package files
+COPY package.json bun.lock ./
+# Copy workspace package.json files (needed for workspaces)
+COPY server/package.json ./server/
+COPY client/package.json ./client/
+# Install dependencies
 RUN bun install --frozen-lockfile
 
 # Build the application
 FROM base as build
-COPY package.json bun.lockb* ./
+COPY package.json bun.lock ./
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN bun build src/index.ts --outdir=dist --target=bun
+# Copy only the server directory for building
+COPY server ./server
+RUN cd server && bun build src/index.ts --outdir=dist --target=bun
 
 # Production image
 FROM base as runtime
 WORKDIR /app
 
-# Copy built application
-COPY package.json bun.lockb* ./
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=build /app/dist ./dist
+# Copy server package.json and dependencies
+COPY server/package.json ./
+COPY --from=deps /app/server/node_modules ./node_modules
+COPY --from=build /app/server/dist ./dist
 
-# Expose the port your app runs on (adjust if needed)
+# Expose the port your app runs on
 EXPOSE 8080
 
 # Set the command to run your application
