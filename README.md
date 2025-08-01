@@ -132,7 +132,7 @@ The application is automatically deployed to Koyeb on every push to the main bra
 
 1. Create a Koyeb account at https://www.koyeb.com/
 2. Get your API token from the Koyeb dashboard
-3. In your GitHub repository settings, add a secret named `KOYEB_API_TOKEN` with your Koyeb API token
+3. In your GitHub repository settings, add a secret named `KOYEB_API_SECRET` with your Koyeb API token
 4. Push to the main branch to trigger automatic deployment
 
 The GitHub Action will:
