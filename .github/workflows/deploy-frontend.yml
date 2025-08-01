@@ -28,7 +28,10 @@ jobs:
         cache-dependency-path: package-lock.json
     
     - name: Install dependencies
-      run: npm ci
+      run: |
+        # Remove node_modules to ensure clean install with platform-specific deps
+        rm -rf node_modules client/node_modules
+        npm install
     
     - name: Build frontend
       run: |
