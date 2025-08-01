@@ -1,0 +1,31 @@
+name: Deploy to Koyeb
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Install and configure the Koyeb CLI
+      uses: koyeb-community/koyeb-actions@v2
+      with:
+        api_token: "${{ secrets.KOYEB_API_TOKEN }}"
+    
+    - name: Build and deploy the application to Koyeb
+      uses: koyeb/action-git-deploy@v1
+      with:
+        app-name: gball
+        service-name: gball
+        git-builder: docker
+        git-docker-dockerfile: Dockerfile
+        service-env: NODE_ENV=production,PORT=8080
+        service-ports: "8080:http"
+        service-routes: "/:8080"
+        service-instance-type: nano
+        service-regions: fra

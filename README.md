@@ -124,8 +124,25 @@ The application will be available at:
 - Frontend: http://localhost:8080
 - WebSocket: ws://localhost:8080/ws
 
-### Deployment to Koyeb (or any Docker host)
+### Deployment to Koyeb
 
+The application is automatically deployed to Koyeb on every push to the main branch using GitHub Actions.
+
+#### Initial Setup:
+
+1. Create a Koyeb account at https://www.koyeb.com/
+2. Get your API token from the Koyeb dashboard
+3. In your GitHub repository settings, add a secret named `KOYEB_API_TOKEN` with your Koyeb API token
+4. Push to the main branch to trigger automatic deployment
+
+The GitHub Action will:
+- Build the Docker container with both frontend and backend
+- Deploy to Koyeb with the service name `gball`
+- Make the app available on Koyeb's domain
+
+#### Manual Deployment to Other Platforms:
+
+For other Docker hosting platforms:
 1. Push your code to GitHub
 2. Configure your deployment platform to build from the Dockerfile
 3. Set environment variables:
