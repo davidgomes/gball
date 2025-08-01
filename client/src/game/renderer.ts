@@ -119,10 +119,43 @@ export class GameRenderer {
     this.drawGoal('left');
     this.drawGoal('right');
     
-    // Draw walls
+    // Draw walls and rounded corners
     this.ctx.strokeStyle = '#000000';
     this.ctx.lineWidth = 3;
-    this.stadium.walls.forEach(wall => this.drawWall(wall));
+    this.drawStadiumWalls();
+  }
+
+  private drawStadiumWalls(): void {
+    if (!this.stadium) return;
+    
+    const { width, height } = this.stadium;
+    const cornerRadius = 30;
+    
+    // Draw straight walls
+    this.stadium.walls.forEach(wall => {
+      // Skip corner walls (they have diagonal normals)
+      if (Math.abs(wall.normal.x) === 0.707 || Math.abs(wall.normal.y) === 0.707) {
+        return;
+      }
+      this.drawWall(wall);
+    });
+    
+    // Draw rounded corners
+    this.ctx.beginPath();
+    
+    // Top-left corner
+    this.ctx.arc(-width/2 + cornerRadius, -height/2 + cornerRadius, cornerRadius, Math.PI, Math.PI * 1.5);
+    
+    // Top-right corner
+    this.ctx.arc(width/2 - cornerRadius, -height/2 + cornerRadius, cornerRadius, Math.PI * 1.5, 0);
+    
+    // Bottom-right corner
+    this.ctx.arc(width/2 - cornerRadius, height/2 - cornerRadius, cornerRadius, 0, Math.PI * 0.5);
+    
+    // Bottom-left corner
+    this.ctx.arc(-width/2 + cornerRadius, height/2 - cornerRadius, cornerRadius, Math.PI * 0.5, Math.PI);
+    
+    this.ctx.stroke();
   }
 
   private drawGoal(position: 'left' | 'right'): void {
@@ -159,7 +192,7 @@ export class GameRenderer {
   }
 
   private drawPlayer(player: Player): void {
-    const { position, radius, team, playerId } = player;
+    const { position, radius, team, playerId, input } = player;
     const isAI = playerId.startsWith('ai_');
     
     // Player body
@@ -168,8 +201,8 @@ export class GameRenderer {
     this.ctx.arc(position.x, position.y, radius, 0, Math.PI * 2);
     this.ctx.fill();
     
-    // Player outline
-    this.ctx.strokeStyle = '#FFFFFF';
+    // Player outline - gray-ish by default, white when kicking
+    this.ctx.strokeStyle = input.kick ? '#FFFFFF' : '#808080';
     this.ctx.lineWidth = 2;
     this.ctx.stroke();
     
@@ -221,15 +254,7 @@ export class GameRenderer {
     this.ctx.lineWidth = 2;
     this.ctx.stroke();
     
-    // Ball pattern (simple cross)
-    this.ctx.strokeStyle = '#000000';
-    this.ctx.lineWidth = 1;
-    this.ctx.beginPath();
-    this.ctx.moveTo(position.x - radius * 0.5, position.y);
-    this.ctx.lineTo(position.x + radius * 0.5, position.y);
-    this.ctx.moveTo(position.x, position.y - radius * 0.5);
-    this.ctx.lineTo(position.x, position.y + radius * 0.5);
-    this.ctx.stroke();
+    // Removed cross pattern - ball is now plain white
   }
 
   private drawUI(gameState: GameState): void {

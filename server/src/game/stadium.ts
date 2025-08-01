@@ -7,26 +7,27 @@ export class StadiumConfig {
     const height = 600;  // 200 * 3
     const goalWidth = 192; // 64 * 3
     const goalDepth = 45;  // 15 * 3
+    const cornerRadius = 30; // Rounded corner radius
     
     const walls: Wall[] = [];
     
     // Top wall (left section)
     walls.push({
-      start: { x: -width/2, y: -height/2 },
-      end: { x: width/2, y: -height/2 },
+      start: { x: -width/2 + cornerRadius, y: -height/2 },
+      end: { x: width/2 - cornerRadius, y: -height/2 },
       normal: { x: 0, y: 1 }
     });
     
     // Bottom wall (full length)
     walls.push({
-      start: { x: -width/2, y: height/2 },
-      end: { x: width/2, y: height/2 },
+      start: { x: -width/2 + cornerRadius, y: height/2 },
+      end: { x: width/2 - cornerRadius, y: height/2 },
       normal: { x: 0, y: -1 }
     });
     
     // Left wall (top section)
     walls.push({
-      start: { x: -width/2, y: -height/2 },
+      start: { x: -width/2, y: -height/2 + cornerRadius },
       end: { x: -width/2, y: -goalWidth/2 },
       normal: { x: 1, y: 0 }
     });
@@ -34,13 +35,13 @@ export class StadiumConfig {
     // Left wall (bottom section)
     walls.push({
       start: { x: -width/2, y: goalWidth/2 },
-      end: { x: -width/2, y: height/2 },
+      end: { x: -width/2, y: height/2 - cornerRadius },
       normal: { x: 1, y: 0 }
     });
     
     // Right wall (top section)
     walls.push({
-      start: { x: width/2, y: -height/2 },
+      start: { x: width/2, y: -height/2 + cornerRadius },
       end: { x: width/2, y: -goalWidth/2 },
       normal: { x: -1, y: 0 }
     });
@@ -48,8 +49,36 @@ export class StadiumConfig {
     // Right wall (bottom section)
     walls.push({
       start: { x: width/2, y: goalWidth/2 },
-      end: { x: width/2, y: height/2 },
+      end: { x: width/2, y: height/2 - cornerRadius },
       normal: { x: -1, y: 0 }
+    });
+    
+    // Corner walls - Top Left
+    walls.push({
+      start: { x: -width/2, y: -height/2 + cornerRadius },
+      end: { x: -width/2 + cornerRadius, y: -height/2 },
+      normal: { x: 0.707, y: 0.707 }
+    });
+    
+    // Corner walls - Top Right
+    walls.push({
+      start: { x: width/2 - cornerRadius, y: -height/2 },
+      end: { x: width/2, y: -height/2 + cornerRadius },
+      normal: { x: -0.707, y: 0.707 }
+    });
+    
+    // Corner walls - Bottom Left
+    walls.push({
+      start: { x: -width/2 + cornerRadius, y: height/2 },
+      end: { x: -width/2, y: height/2 - cornerRadius },
+      normal: { x: 0.707, y: -0.707 }
+    });
+    
+    // Corner walls - Bottom Right
+    walls.push({
+      start: { x: width/2, y: height/2 - cornerRadius },
+      end: { x: width/2 - cornerRadius, y: height/2 },
+      normal: { x: -0.707, y: -0.707 }
     });
     
     // Left goal walls (red team goal)

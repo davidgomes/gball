@@ -35,7 +35,7 @@ export class GameEngine {
       id: 'ball',
       position: { ...spawnPos },
       velocity: { x: 0, y: 0 },
-      radius: 11, // 3/4 of player size (15 * 0.75 ≈ 11)
+      radius: 18,
       friction: 0.985, // Reduced friction for better ball movement
       bounciness: 0.8
     };
@@ -55,9 +55,9 @@ export class GameEngine {
       team,
       position: { ...spawnPos },
       velocity: { x: 0, y: 0 },
-      radius: 15, // Player radius
-      maxSpeed: 240,
-      acceleration: 600,
+      radius: 24, // Player radius
+      maxSpeed: 450, // Updated as requested
+      acceleration: 2000, // (remains at 40% higher)
       input: {
         up: false,
         down: false,
@@ -153,7 +153,7 @@ export class GameEngine {
     player.velocity = Physics.limit(player.velocity, player.maxSpeed);
 
     // Apply friction
-    player.velocity = Physics.applyFriction(player.velocity, 0.95, deltaTime);
+    player.velocity = Physics.applyFriction(player.velocity, 0.1, deltaTime); // Fixed friction so players actually slow down
 
     // Update position
     const velocityDelta = Physics.multiply(player.velocity, deltaTime);
@@ -318,9 +318,9 @@ export class GameEngine {
       team: 'blue',
       position: { ...spawnPos },
       velocity: { x: 0, y: 0 },
-      radius: 15,
-      maxSpeed: role === 'attacker' ? 290 : 280, // Super fast attacking AI
-      acceleration: 700, // Higher acceleration for more responsive AI
+      radius: 24,
+      maxSpeed: 450,
+      acceleration: 2000, // Higher acceleration for more responsive AI
       aiRole: role,
       aiCooldowns: {
         kick: 0,
