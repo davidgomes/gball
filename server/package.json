@@ -7,11 +7,8 @@
     "start": "bun run src/index.ts",
     "build": "bun build src/index.ts --outdir=dist"
   },
-  "dependencies": {
-    "ws": "^8.14.2"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@types/ws": "^8.5.8",
     "bun-types": "latest"
   },
   "type": "module"

@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { Game } from './components/Game';
 
 function App() {
-  const [serverUrl, setServerUrl] = useState('ws://localhost:8090');
+  const [serverUrl, setServerUrl] = useState(() => {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+    return `${protocol}//${host}/ws`;
+  });
   const [isConnecting, setIsConnecting] = useState(false);
   const [showGame, setShowGame] = useState(false);
 
@@ -40,7 +44,7 @@ function App() {
               type="text"
               value={serverUrl}
               onChange={(e) => setServerUrl(e.target.value)}
-              placeholder="ws://localhost:8090"
+              placeholder={serverUrl}
               className="url-input"
             />
             <button 

@@ -100,65 +100,42 @@ While gball ships with the classic Haxball-style field and ball, you can customi
 
 ## Deployment
 
-### Server Deployment (Koyeb)
+The application is packaged as a single Docker container that serves both the frontend and backend.
 
-The server is configured for automatic deployment to Koyeb on every push to the main branch.
+### Dockerfile Overview
 
-#### Initial Setup:
+The unified Dockerfile:
+- Builds the React frontend using Vite
+- Builds the Bun server
+- Serves the frontend static files from the same server that handles WebSocket connections
+- Everything runs on a single port (default: 8080)
 
-1. Create a Koyeb account at https://www.koyeb.com/
-2. Get your API token from the Koyeb dashboard
-3. In your GitHub repository settings, add a secret named `KOYEB_API_TOKEN` with your Koyeb API token
-4. Create an app on Koyeb named `gball-server`
-5. Push to the main branch to trigger automatic deployment
+### Local Docker Build & Run
 
-The server uses a multi-stage Dockerfile optimized for Bun runtime and will be automatically built and deployed via GitHub Actions.
-
-### Frontend Deployment (GitHub Pages)
-
-The frontend is automatically built and deployed to GitHub Pages using GitHub Actions.
-
-#### Initial Setup:
-
-1. Go to your repository Settings → Pages
-2. Under "Build and deployment", set Source to "Deploy from a branch"
-3. Select branch: `main` and folder: `/client/dist`
-4. Click Save
-
-The frontend will be available at: `https://<username>.github.io/<repository-name>/`
-
-**Important:** If your repository name is not your username.github.io, you need to update the base path in `client/vite.config.ts`:
-```javascript
-export default defineConfig({
-  base: '/<repository-name>/',
-  // ... rest of config
-});
-```
-
-#### How it Works:
-
-- GitHub Actions automatically triggers on every push to the main branch that affects the client code
-- The workflow:
-  - Builds the frontend to `client/dist/`
-  - Commits and pushes the built files back to the repository
-  - GitHub Pages serves the files from `client/dist/`
-- No local build step required - just push your source code!
-
-#### Manual Build:
-
-If you need to build locally for testing:
 ```bash
-cd client
-npm install
-npm run build
+# Build the Docker image
+docker build -t gball .
+
+# Run the container
+docker run -p 8080:8080 gball
 ```
 
-#### GitHub Action Configuration:
+The application will be available at:
+- Frontend: http://localhost:8080
+- WebSocket: ws://localhost:8080/ws
 
-The frontend deployment is handled by `.github/workflows/deploy-frontend.yml`. The workflow:
-- Triggers on pushes to main that modify files in `client/`
-- Uses Node.js 20 for building
-- Automatically commits built files with `[skip ci]` to avoid infinite loops
+### Deployment to Koyeb (or any Docker host)
+
+1. Push your code to GitHub
+2. Configure your deployment platform to build from the Dockerfile
+3. Set environment variables:
+   - `PORT`: The port to run on (default: 8080)
+   - `NODE_ENV`: Set to `production`
+
+The server automatically:
+- Serves the React frontend at the root path
+- Handles WebSocket connections at `/ws`
+- Falls back to index.html for client-side routing
 
 ## Contributing
 
