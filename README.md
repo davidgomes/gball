@@ -116,20 +116,14 @@ The server uses a multi-stage Dockerfile optimized for Bun runtime and will be a
 
 ### Frontend Deployment (GitHub Pages)
 
-The frontend is built locally before commits and deployed to GitHub Pages.
+The frontend is automatically built and deployed to GitHub Pages using GitHub Actions.
 
 #### Initial Setup:
 
-1. Enable automatic builds before commits:
-   ```bash
-   ./setup-hooks.sh
-   ```
-   This configures a pre-commit hook that automatically builds the frontend when committing on the main branch.
-
-2. Go to your repository Settings → Pages
-3. Under "Build and deployment", set Source to "Deploy from a branch"
-4. Select branch: `main` and folder: `/client/dist`
-5. Click Save
+1. Go to your repository Settings → Pages
+2. Under "Build and deployment", set Source to "Deploy from a branch"
+3. Select branch: `main` and folder: `/client/dist`
+4. Click Save
 
 The frontend will be available at: `https://<username>.github.io/<repository-name>/`
 
@@ -143,26 +137,28 @@ export default defineConfig({
 
 #### How it Works:
 
-- When you commit on the main branch, the pre-commit hook automatically:
+- GitHub Actions automatically triggers on every push to the main branch that affects the client code
+- The workflow:
   - Builds the frontend to `client/dist/`
-  - Adds the built files to your commit
-- When you push to GitHub, the built files are included
-- GitHub Pages serves the files from `client/dist/`
+  - Commits and pushes the built files back to the repository
+  - GitHub Pages serves the files from `client/dist/`
+- No local build step required - just push your source code!
 
 #### Manual Build:
 
-If you need to build manually without committing:
+If you need to build locally for testing:
 ```bash
 cd client
 npm install
 npm run build
 ```
 
-#### Disable Automatic Builds:
+#### GitHub Action Configuration:
 
-```bash
-git config --unset core.hooksPath
-```
+The frontend deployment is handled by `.github/workflows/deploy-frontend.yml`. The workflow:
+- Triggers on pushes to main that modify files in `client/`
+- Uses Node.js 20 for building
+- Automatically commits built files with `[skip ci]` to avoid infinite loops
 
 ## Contributing
 

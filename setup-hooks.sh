@@ -2,14 +2,11 @@
 
 # Script to set up git hooks for the project
 
-echo "Setting up git hooks..."
-
-# Configure git to use the .githooks directory
-git config core.hooksPath .githooks
-
-echo "✅ Git hooks have been configured!"
+echo "🚨 Git hooks are no longer used in this project"
 echo ""
-echo "The following hooks are now active:"
-echo "- pre-commit: Automatically builds frontend before committing on main branch"
+echo "Frontend deployment is now handled by GitHub Actions!"
+echo "- Automatic builds and deployment happen on every push to main branch"
+echo "- No local build step required before committing"
 echo ""
-echo "To disable hooks, run: git config --unset core.hooksPath"
+echo "If you previously had hooks enabled, you can disable them with:"
+echo "  git config --unset core.hooksPath"
