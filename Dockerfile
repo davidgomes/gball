@@ -38,10 +38,14 @@ COPY server/package.json ./
 # Copy built frontend to be served
 COPY --from=frontend-builder /app/client/dist ./public
 
+# Debug: List files to verify structure
+RUN ls -la /app/public/
+
 # Environment
 ENV NODE_ENV=production
 ENV PORT=8080
 
 EXPOSE 8080
 
+# Run the server
 CMD ["bun", "run", "dist/index.js"]

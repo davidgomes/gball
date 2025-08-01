@@ -14,9 +14,38 @@ class GameServer {
     this.gameEngine = new GameEngine();
     
     // Determine public directory path
-    const publicDir = process.env.NODE_ENV === 'production' 
-      ? join(process.cwd(), 'public')
-      : join(process.cwd(), 'client', 'dist');
+    // First check if we have a 'public' directory (production build)
+    const productionDir = join(process.cwd(), 'public');
+    const developmentDir = join(process.cwd(), 'client', 'dist');
+    
+    let publicDir = productionDir;
+    
+    // Check which directory exists using Bun.file
+    const checkDir = (dir: string) => {
+      try {
+        // Check if index.html exists in the directory
+        const indexPath = join(dir, 'index.html');
+        return Bun.file(indexPath).size > 0;
+      } catch {
+        return false;
+      }
+    };
+    
+    if (checkDir(productionDir)) {
+      publicDir = productionDir;
+      console.log(`✅ Using production directory: ${productionDir}`);
+    } else if (checkDir(developmentDir)) {
+      publicDir = developmentDir;
+      console.log(`✅ Using development directory: ${developmentDir}`);
+    } else {
+      console.error(`❌ Neither ${productionDir} nor ${developmentDir} contain index.html!`);
+      console.log(`📁 Current working directory: ${process.cwd()}`);
+    }
+    
+    console.log(`🗂️  Serving static files from: ${publicDir}`);
+    console.log(`🌍 Environment: NODE_ENV=${process.env.NODE_ENV}`);
+    
+
     
     // Create Bun HTTP/WebSocket server
     this.server = Bun.serve({
@@ -40,7 +69,8 @@ class GameServer {
         let pathname = url.pathname;
         if (pathname === '/') pathname = '/index.html';
         
-        const file = Bun.file(join(publicDir, pathname));
+        const filePath = join(publicDir, pathname);
+        const file = Bun.file(filePath);
         const exists = await file.exists();
         
         if (exists) {
@@ -48,7 +78,15 @@ class GameServer {
         }
         
         // Fallback to index.html for client-side routing
-        const indexFile = Bun.file(join(publicDir, 'index.html'));
+        const indexPath = join(publicDir, 'index.html');
+        const indexFile = Bun.file(indexPath);
+        const indexExists = await indexFile.exists();
+        
+        if (!indexExists) {
+          console.error(`❌ index.html not found at: ${indexPath}`);
+          return new Response(`index.html not found at: ${indexPath}`, { status: 404 });
+        }
+        
         return new Response(indexFile);
       },
       
