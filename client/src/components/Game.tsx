@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { GameClient } from '../game/client';
 import { GameRenderer } from '../game/renderer';
-import type { GameState, Player, Stadium } from '../types/game';
+import { SoundManager } from '../game/soundManager';
+import type { GameState, Player, Stadium, SoundEvent } from '../types/game';
 
 interface GameProps {
   serverUrl: string;
@@ -11,6 +12,7 @@ export const Game: React.FC<GameProps> = ({ serverUrl }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameClientRef = useRef<GameClient | null>(null);
   const rendererRef = useRef<GameRenderer | null>(null);
+  const soundManagerRef = useRef<SoundManager | null>(null);
   
   const [isConnected, setIsConnected] = useState(false);
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
@@ -27,6 +29,14 @@ export const Game: React.FC<GameProps> = ({ serverUrl }) => {
       console.error('Failed to initialize renderer:', error);
       setConnectionError('Failed to initialize game renderer');
       return;
+    }
+
+    // Initialize sound manager
+    try {
+      soundManagerRef.current = new SoundManager();
+    } catch (error) {
+      console.error('Failed to initialize sound manager:', error);
+      // Don't fail completely if sound doesn't work
     }
 
     // Initialize game client
@@ -62,6 +72,10 @@ export const Game: React.FC<GameProps> = ({ serverUrl }) => {
       setConnectionError('Disconnected from server');
     });
 
+    gameClientRef.current.onSoundEvents((event: SoundEvent) => {
+      handleSoundEvent(event);
+    });
+
     // Connect to server
     try {
       gameClientRef.current.connect(serverUrl);
@@ -84,6 +98,28 @@ export const Game: React.FC<GameProps> = ({ serverUrl }) => {
       rendererRef.current.render(gameState);
     }
   }, [gameState]);
+
+  const handleSoundEvent = (event: SoundEvent) => {
+    if (!soundManagerRef.current) return;
+    
+    switch (event.type) {
+      case 'goalScored':
+        console.log(`🎉 Goal scored by ${event.team} team!`);
+        soundManagerRef.current.playSound('goalScored', 0.8);
+        if (rendererRef.current) {
+          rendererRef.current.triggerGoalCelebration();
+        }
+        break;
+      
+      case 'wallHit':
+        soundManagerRef.current.playSound('wallHit', 0.6);
+        break;
+      
+      case 'ballKick':
+        soundManagerRef.current.playSound('ballKick', 0.4);
+        break;
+    }
+  };
 
   const handleReconnect = () => {
     if (gameClientRef.current) {

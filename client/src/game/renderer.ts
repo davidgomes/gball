@@ -1,4 +1,5 @@
 import type { GameState, Stadium, Player, Ball, Wall, Vector2 } from '../types/game.ts';
+import { ConfettiSystem } from './confetti.ts';
 
 export class GameRenderer {
   private canvas: HTMLCanvasElement;
@@ -6,6 +7,8 @@ export class GameRenderer {
   private scale: number = 1;
   private offset: Vector2 = { x: 0, y: 0 };
   private stadium: Stadium | null = null;
+  private confetti: ConfettiSystem = new ConfettiSystem();
+  private lastUpdateTime: number = Date.now();
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -69,6 +72,12 @@ export class GameRenderer {
   render(gameState: GameState): void {
     if (!this.stadium) return;
     
+    // Update confetti system
+    const currentTime = Date.now();
+    const deltaTime = (currentTime - this.lastUpdateTime) / 1000;
+    this.lastUpdateTime = currentTime;
+    this.confetti.update(deltaTime);
+    
     // Clear canvas
     this.ctx.clearRect(0, 0, this.canvas.clientWidth, this.canvas.clientHeight);
     
@@ -88,6 +97,13 @@ export class GameRenderer {
     
     // Draw UI elements (not scaled)
     this.drawUI(gameState);
+    
+    // Draw confetti on top of everything
+    this.confetti.render(this.ctx);
+  }
+
+  triggerGoalCelebration(): void {
+    this.confetti.trigger(this.canvas.clientWidth, this.canvas.clientHeight);
   }
 
   private drawStadium(): void {

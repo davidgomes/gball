@@ -69,7 +69,19 @@ export type MessageType =
   | 'input'
   | 'gameState'
   | 'goal'
-  | 'matchEnd';
+  | 'matchEnd'
+  | 'soundEvent';
+
+export type SoundEventType = 
+  | 'goalScored'
+  | 'wallHit'
+  | 'ballKick';
+
+export interface SoundEvent {
+  type: SoundEventType;
+  team?: 'red' | 'blue'; // For goal celebrations
+  position?: Vector2; // For positional audio if needed later
+}
 
 export interface GameMessage {
   type: MessageType;

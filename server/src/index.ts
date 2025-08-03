@@ -1,5 +1,5 @@
 import { GameEngine } from './game/engine.ts';
-import type { GameMessage, PlayerInput } from './types/game.ts';
+import type { GameMessage, PlayerInput, SoundEvent } from './types/game.ts';
 import { ServerWebSocket } from 'bun';
 import { join } from 'path';
 
@@ -12,6 +12,15 @@ class GameServer {
 
   constructor(port: number = 8080) {
     this.gameEngine = new GameEngine();
+    
+    // Set up sound event callback to broadcast to all clients
+    this.gameEngine.setSoundEventCallback((event: SoundEvent) => {
+      this.broadcast({
+        type: 'soundEvent',
+        data: event,
+        timestamp: Date.now()
+      });
+    });
     
     // Determine public directory path
     // First check if we have a 'public' directory (production build)

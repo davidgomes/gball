@@ -5,6 +5,8 @@ import type {
   PlayerInput,
   Vector2,
   Stadium,
+  SoundEvent,
+  SoundEventType,
 } from "../types/game.ts";
 import { Physics } from "../utils/physics.ts";
 import { StadiumConfig } from "./stadium.ts";
@@ -20,6 +22,7 @@ export class GameEngine {
   private lastUpdateTime: number;
   private readonly tickRate = 60; // 60 FPS
   private readonly deltaTime = 1000 / this.tickRate;
+  private soundEventCallback?: (event: SoundEvent) => void;
 
   constructor() {
     this.stadium = StadiumConfig.createClassicStadium();
@@ -208,6 +211,12 @@ export class GameEngine {
     for (const wall of this.stadium.walls) {
       if (Physics.checkWallCollision(this.gameState.ball, wall)) {
         Physics.resolveWallCollision(this.gameState.ball, wall);
+        
+        // Emit wall hit sound event (only for ball-wall collisions)
+        this.emitSoundEvent({
+          type: 'wallHit',
+          position: { ...this.gameState.ball.position }
+        });
       }
     }
 
@@ -237,6 +246,14 @@ export class GameEngine {
 
     if (goalScored) {
       this.gameState.score[goalScored]++;
+      
+      // Emit goal sound event
+      this.emitSoundEvent({
+        type: 'goalScored',
+        team: goalScored,
+        position: { ...this.gameState.ball.position }
+      });
+      
       this.resetBallAndPlayers();
 
       // Check for match end (first to 3 goals wins)
@@ -260,6 +277,12 @@ export class GameEngine {
   private performKick(player: Player): void {
     Physics.applyKick(player, this.gameState.ball, GAME_PHYSICS.kickPower);
     console.log(`🦶 Player ${player.playerId.slice(-4)} kicked the ball!`);
+    
+    // Emit ball kick sound event
+    this.emitSoundEvent({
+      type: 'ballKick',
+      position: { ...this.gameState.ball.position }
+    });
   }
 
   private startMatch(): void {
@@ -919,6 +942,14 @@ export class GameEngine {
 
   getGameState(): GameState {
     return { ...this.gameState };
+  }
+
+  setSoundEventCallback(callback: (event: SoundEvent) => void): void {
+    this.soundEventCallback = callback;
+  }
+
+  private emitSoundEvent(event: SoundEvent): void {
+    this.soundEventCallback?.(event);
   }
 
   getStadium(): Stadium {

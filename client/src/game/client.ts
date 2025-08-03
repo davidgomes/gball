@@ -3,7 +3,8 @@ import type {
   GameState, 
   PlayerInput, 
   Player, 
-  Stadium 
+  Stadium,
+  SoundEvent
 } from '../types/game.ts';
 
 export class GameClient {
@@ -23,6 +24,7 @@ export class GameClient {
   private onPlayerJoin?: (player: Player) => void;
   private onConnectionEstablished?: (player: Player, gameState: GameState, stadium: Stadium) => void;
   private onConnectionLost?: () => void;
+  private onSoundEvent?: (event: SoundEvent) => void;
 
   constructor() {
     this.setupInputHandlers();
@@ -96,6 +98,12 @@ export class GameClient {
 
       case 'leave':
         // Handle player leaving if needed
+        break;
+
+      case 'soundEvent':
+        if (message.data) {
+          this.onSoundEvent?.(message.data as SoundEvent);
+        }
         break;
 
       default:
@@ -213,6 +221,10 @@ export class GameClient {
 
   onDisconnection(callback: () => void): void {
     this.onConnectionLost = callback;
+  }
+
+  onSoundEvents(callback: (event: SoundEvent) => void): void {
+    this.onSoundEvent = callback;
   }
 
   getCurrentPlayer(): Player | null {
